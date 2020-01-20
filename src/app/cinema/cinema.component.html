@@ -1,0 +1,91 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-3">
+      <ul *ngIf="villes" class="list-group clickable">
+        <li *ngFor="let ville of villes" [ngClass]="ville == currentVille ? 'active' : ''" class="list-group-item"
+          (click)="onGetCinemas(ville)">
+          {{ville.name}}
+        </li>
+      </ul>
+    </div>
+    <div class="col-md-9">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Liste des Cinémas</h3>
+        </div>
+        <div class="panel-body">
+          <ul *ngIf="cinemas" class="nav nav-pills">
+            <li *ngFor="let cinema of cinemas" [ngClass]="cinema == currentCinema ? 'active' : ''" class="clickable">
+              <a (click)="onGetSalles(cinema)">{{cinema.name}}</a>
+            </li>
+          </ul>
+
+          <div class="row" *ngIf="salles">
+            <div *ngFor="let salle of salles">
+              <div class="col-md-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">{{salle.name}}</h3>
+                  </div>
+                  <div class="panel-body" *ngIf="salle.projections">
+                    <div class="row">
+                      <div class="col-md-5">
+                        <img src="{{getImageFilmUrl(salle)}}" width="150px" class="img-responsive" alt="ImageFilmUrl" />
+                      </div>
+                      <div class="col-md-7">
+                        <ul *ngIf="villes" class="list-group clickable">
+                          <li class="list-group-item">Séances:</li>
+                          <li *ngFor="let projectionFilm of salle.projections._embedded.projectionFilms"
+                            [ngClass]="projectionFilm == currentProjectionFilm ? 'active' : ''" class="list-group-item"
+                            (click)="onGetTicketPlaces(projectionFilm)">
+                            {{projectionFilm.seance.heureDebut}} => Prix: {{projectionFilm.prix|number:'0.00'}}
+                            <span class="colorDodgerblue">
+                              <i class="fa fa-lg fa-eur" aria-hidden="true"></i>
+                            </span>
+                          </li>
+
+
+                        </ul>
+                      </div>
+                    </div>
+                    <p></p>
+                    <div *ngIf="currentProjectionFilm">
+                      <div *ngIf="currentProjectionFilm.salle.id==salle.id">
+                        <div class="row" *ngIf="currentProjectionFilm.tickets">
+                          <button *ngFor="let ticket of currentProjectionFilm.tickets" [disabled]="ticket.reserve"
+                            type="button" (click)="onSelectTicket(ticket)" class="{{getTicketClass(ticket)}}">
+                            <span *ngIf="ticket.place">{{ticket.place.numero}}</span>
+                          </button>
+                        </div>
+                        <div class="row" *ngIf="selectedTickets && selectedTickets.length > 0">
+                          <form (ngSubmit)="onPayTickets()" #f="ngForm" role="form">
+                            <legend>Pay Tickets</legend>
+                            <div ngModelGroup="ticketData" #ticketData="ngModelGroup">
+                              <div class="form-group">
+                                <label for="">Nom Client</label>
+                                <input type="text" class="form-control" ngModel name="nomClient"
+                                  placeholder="Nom Client" required>
+                              </div>
+                              <div class="form-group">
+                                <label for="">Code Payement</label>
+                                <input type="text" class="form-control" ngModel name="codePayement"
+                                  placeholder="Code Payement" required>
+                                <p *ngIf="!ticketData.valid && ticketData.touched">Les données ne sont pas valides!</p>
+                              </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" [disabled]="!f.valid">Payer</button>
+                          </form>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
